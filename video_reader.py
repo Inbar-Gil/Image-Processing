@@ -2,6 +2,12 @@ import cv2
 
 FPS = 29
 FILE_TYPE = '.mp4'
+WIN_LOC = [100, 100]
+WIN_RAT = 16 / 9
+WIN_HEIGHT = 500
+WIN_WIDTH = int(WIN_HEIGHT * WIN_RAT)
+WIN_SIZE = WIN_WIDTH, WIN_HEIGHT
+BLANK_IMAGE = cv2.imread('Blank_Image.png')
 
 
 def read_file(file_name):
@@ -21,8 +27,6 @@ def load_vid(file='', delay=0):
         file = input("Input File Name")
         captured_vid = read_file(file)
         display_vid(captured_vid, delay)
-        # captured_vid.release()
-        # cv2.destroyAllWindows()
 
 
 def display_vid(video, delay):
@@ -32,9 +36,16 @@ def display_vid(video, delay):
         if ret_val:
             frame_counter += 1
             time = calc_time(frame_counter)
-            cv2.imshow(f"Frame #{frame_counter}  Time Passed:{time} s", frame)
-            cv2.waitKey(delay)
-            if frame_counter == 29:
+            win_name = f"Frame #{frame_counter}  Time Passed:{time} s"
+            create_window(win_name, WIN_SIZE, WIN_LOC)
+            cv2.imshow(win_name, frame)
+            k = cv2.waitKey(delay) & 0xFF
+            if k == ord('s'):
+                cv2.imwrite('Blank_Image.png', frame)
+            if k == 27:
+                cv2.destroyAllWindows()
+                break
+            if frame_counter == 200:
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
                 break
@@ -46,6 +57,13 @@ def calc_time(frames):
     return frames / FPS
 
 
-if __name__ == "__main__":
-    load_vid(delay=int(1000))
+def create_window(win_name, win_size, win_loc):
+    cv2.namedWindow(win_name, flags=cv2.WINDOW_KEEPRATIO)
+    win_x, win_y = win_loc
+    cv2.moveWindow(win_name, win_x, win_y)
+    win_width, win_height = win_size
+    cv2.resizeWindow(win_name, win_width, win_height)
 
+
+if __name__ == "__main__":
+    load_vid(delay=0)
