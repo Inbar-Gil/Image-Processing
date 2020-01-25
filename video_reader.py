@@ -2,7 +2,7 @@ import cv2
 from fruit_finder import find_fruit
 import timeit
 
-FPS = 29
+FPS = 10
 FILE_TYPE = '.mp4'
 WIN_LOC = [0, 0]
 WIN_RAT = 16 / 9
@@ -40,18 +40,19 @@ def display_vid(video_in, delay):
     frame_counter = 0
     background = BLANK_IMAGE_GRAY
     prev_frame = None
-    video_out = cv2.VideoWriter('Edited_fruit_ninja_2.0.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 29,
+    video_out = cv2.VideoWriter('Edited_fruit_ninja_Blank.avi', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), FPS,
                                 (256, 144))
     while video_in.isOpened():
         ret_val, frame = video_in.read()
         if ret_val:
             if user_input(frame_counter, delay, frame) == -1:
                 break
+            if user_input(frame_counter, delay, frame) == 1:
+                print(frame_counter)
+                continue
             background = check_for_background(frame, prev_frame, background)
             frame_counter = display_images(frame_counter, frame, background)
             video_out.write(frame)
-            if user_input(frame_counter, delay, frame) == -1:
-                break
             cv2.destroyAllWindows()
             prev_frame = frame.copy()
         else:
@@ -107,12 +108,14 @@ def display_images(frame_counter, frame, background):
 def user_input(frame_counter, delay, frame):
     # checks and acts on user input
     k = cv2.waitKey(delay) & 0xFF
-    if k == ord('s'):
-        cv2.imwrite('BOMB.png', frame)
+    # k == ord('s')
+    if frame_counter == 655:
+        cv2.imshow(f"{frame_counter}", frame)
+        cv2.imwrite(f'LIME{frame_counter}.png', frame)
     if k == 27:
         cv2.destroyAllWindows()
         return -1
-    if frame_counter == 2000:
+    if frame_counter == 1000:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
         return -1
